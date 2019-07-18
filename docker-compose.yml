@@ -1,0 +1,26 @@
+version: '3'
+services:
+  watl:
+    build: .
+    labels: 
+      - "com.watl.description=Whatsapp Bot"
+    depends_on: 
+      - mongo
+    ports:
+      - "8000:8000"
+    env_file: 
+      - "db.env"
+    networks:
+      public:
+      private:
+  mongo:
+    image: mongo
+    env_file: 
+      - "db.env"
+    networks: 
+      private:
+
+networks:
+  public:
+  private:
+    internal: true
