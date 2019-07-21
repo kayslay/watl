@@ -21,7 +21,11 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 
 	wac, err := whatzapp.NewConn(time.Minute)
 	if err != nil {
-		fmt.Println("could not connect at the moment " + err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
