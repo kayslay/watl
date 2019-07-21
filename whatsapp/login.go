@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"os"
+	"path"
 
 	qrcodeTerminal "github.com/Baozisoftware/qrcode-terminal-go"
 
@@ -69,7 +70,7 @@ func readSession() (whatzapp.Session, error) {
 }
 
 func WriteSession(session whatzapp.Session) error {
-	file, err := os.Create(os.TempDir() + "/whatsappSession.gob")
+	file, err := os.Create(path.Join(os.TempDir(), "/"+session.ClientId+"_whatsappSession.gob"))
 	if err != nil {
 		return err
 	}

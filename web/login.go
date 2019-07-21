@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	"github/kayslay/watl/store"
 	"github/kayslay/watl/whatsapp"
@@ -28,7 +29,12 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 
 	h, err := whatsapp.NewHandler(wac, a.Writer, str)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
 	}
 	//Add handler
 	wac.AddHandler(h)
@@ -50,39 +56,40 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 		h.SetClientID(session.ClientId)
 		// set the session refCode
 		a.code[uniqueCode] = session.ClientId
+		log.Println("session count", len(a.session))
 	}()
 
+	qrcode := <-qr
+	log.Println(qrcode)
+	if qrcode == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, map[string]string{
+			"status":  "error",
+			"message": "could not get qr code. check network connection",
+		})
+		return
+	}
+
 	render.JSON(w, r, map[string]string{
-		"qr":      <-qr,
+		"qr":      qrcode,
 		"refCode": uniqueCode,
 		"message": "click link after scan",
-		"link":    fmt.Sprintf("http:localhost:8000/%s/status", uniqueCode),
+		"link":    fmt.Sprintf("http:localhost:8000/%s/", uniqueCode),
 	})
 }
 
 func (a *App) Logout(w http.ResponseWriter, r *http.Request) {
 	// get the qr code
 	refCode := chi.URLParam(r, "code")
-	a.Lock()
-	defer a.Unlock()
-
-	sessID, ok := a.code[refCode]
-	if !ok {
+	h, sessID, err := a.getSession(refCode)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{
-			"status":  "success",
-			"message": "ref code does not exist",
+			"status":  "error",
+			"message": err.Error(),
 		})
 		return
 	}
-	h, ok := a.session[sessID]
-	if !ok {
-		render.JSON(w, r, map[string]string{
-			"status":  "success",
-			"message": "could not find session",
-		})
-		return
-	}
-
 	h.Logout()
 	delete(a.session, sessID)
 	delete(a.code, refCode)
@@ -92,4 +99,20 @@ func (a *App) Logout(w http.ResponseWriter, r *http.Request) {
 		"message": "logout successful",
 	})
 
+}
+
+func (a *App) getSession(refCode string) (*whatsapp.Handler, string, error) {
+	a.Lock()
+	defer a.Unlock()
+
+	sessID, ok := a.code[refCode]
+	if !ok {
+		return nil, "", errors.New("ref code does not exist")
+	}
+	h, ok := a.session[sessID]
+	if !ok {
+		return nil, "", errors.New("session expired")
+
+	}
+	return h, sessID, nil
 }
