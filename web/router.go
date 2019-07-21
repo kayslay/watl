@@ -16,6 +16,7 @@ func Router(w io.WriteCloser) http.Handler {
 
 		r.Get("/login", app.Login)
 		r.Get("/logout/{code}", app.Logout)
+		r.Get("/c/{code}/{phone}/{command}", app.Command)
 	})
 
 	return r
