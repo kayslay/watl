@@ -10,6 +10,7 @@ import (
 	"time"
 
 	whatzapp "github.com/Rhymen/go-whatsapp"
+	"github.com/dchest/uniuri"
 	"rsc.io/quote"
 )
 
@@ -60,14 +61,17 @@ func (h *Handler) restart() {
 	if h.state == "RESTARTING" {
 		return
 	}
+	uniqueCode := "ERR_" + uniuri.NewLen(8)
 	h.prevState, h.state = h.state, "RESTARTING"
-
-	for {
+	count := 0
+	for h.state == "RESTARTING" && count < 5 {
+		log.Println(uniqueCode)
 		log.Println("Waiting 30sec...")
 		<-time.After(30 * time.Second)
 		log.Println("Reconnecting...")
 		err := h.c.Restore()
 		h.initTime = time.Now()
+		count++
 		// getout of loop when it has successfully connected
 		if err == nil {
 			h.prevState, h.state = h.state, h.prevState
@@ -86,7 +90,7 @@ func (h *Handler) HandleTextMessage(message whatzapp.TextMessage) {
 	if message.Info.FromMe {
 		// check if it is a command
 		if strings.HasPrefix(message.Text, "#!") {
-			err := h.command(message)
+			err := h.Command(message)
 			if err != nil {
 				log.Println("error", err)
 				msg := whatzapp.TextMessage{
@@ -179,7 +183,7 @@ func (h *Handler) echoMessage(message whatzapp.TextMessage) {
 
 	h.c.Send(msg)
 	msg.Info.QuotedMessageID = ""
-	msg.Text = "_*master kay* is busy now. Heleft left whatsapp for enlightment and deeper understanding of life ._ his telegram may be active 🤖"
+	msg.Text = "_*master kay* is busy now. Heleft left whatsapp for enlightment and deeper understanding of the universe. *calling and telegram are active*_ 🤖"
 	h.c.Send(msg)
 
 }
