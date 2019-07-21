@@ -40,3 +40,7 @@ func addContact(h *Handler, msg whatzapp.TextMessage, blacklist bool) error {
 
 	return nil
 }
+
+func deleteContact(h *Handler, msg whatzapp.TextMessage) error {
+	return h.store.DeleteContact(h.id, msg.Info.RemoteJid)
+}

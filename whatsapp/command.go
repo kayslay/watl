@@ -1,7 +1,6 @@
 package whatsapp
 
 import (
-	"errors"
 	"github/kayslay/watl/store"
 	"log"
 	"strings"
@@ -12,9 +11,10 @@ import (
 type storer interface {
 	AddContact(store.Contact) error
 	GetContact(clientID string) ([]store.Contact, error)
+	DeleteContact(clientID, name string) error
 }
 
-func (h *Handler) command(message whatzapp.TextMessage) error {
+func (h *Handler) Command(message whatzapp.TextMessage) error {
 	switch {
 	case strings.HasPrefix(message.Text, "#!loki"):
 		return addContact(h, message, true)
@@ -23,7 +23,7 @@ func (h *Handler) command(message whatzapp.TextMessage) error {
 	case strings.HasPrefix(message.Text, "#!odin"):
 		return toggleState(h)
 	case strings.HasPrefix(message.Text, "#!hella"):
-		return errors.New("hella will always fail")
+		return deleteContact(h, message)
 	}
 	return nil
 }

@@ -45,3 +45,10 @@ func (s MgoStore) GetContact(clientID string) ([]Contact, error) {
 	//
 	return cc, err
 }
+
+func (s MgoStore) DeleteContact(clientID, name string) error {
+	c, closer := s.db("contacts")
+	defer closer.Close()
+	// TODO aws kms
+	return c.Remove(bson.M{"client_id": clientID, "name": name})
+}
