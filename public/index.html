@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="qrcode.min.js"></script>
+    <title>Watl</title>
+</head>
+
+<body>
+    <h3>click image to get new qrcode</h3>
+    <img src="" alt="qrcode" id="qrcode" title="click to get another">
+    <p id="refCode"></p>
+    <script>
+        var qrcode = new QRCode(document.getElementById("qrcode"), {
+            width: 500,
+            height: 500
+        });
+        getQR()
+        $("#qrcode").click(getQR)
+        function getQR() {
+            fetch("/v1/login").then(t => t.json())
+                .then(o => {
+                    console.log(o)
+                    if (o.status == "error") {
+                        throw o.message
+                        return
+                    }
+                    qrcode.makeCode(o.qr)
+                    $("#refCode").text(o.refCode)
+                })
+                .catch(console.error)
+        }
+    </script>
+</body>
+
+</html>
