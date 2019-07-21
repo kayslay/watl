@@ -15,6 +15,9 @@ func (h *Handler) HandleImageMessage(message whatzapp.ImageMessage) {
 	if !time.Unix(int64(message.Info.Timestamp), 0).After(h.initTime) {
 		return
 	}
+	if os.Getenv("ENV") == "production" {
+		return
+	}
 	h.sendTofile(message)
 	data, err := message.Download()
 	if err != nil {
