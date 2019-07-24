@@ -1,0 +1,47 @@
+image: golang:1.11
+stages:
+  - test
+  - build
+  - staging
+  - production
+
+before_script:
+  # - 
+
+
+
+go_test:
+  stage: test
+  script:
+    # - go test -timeout 30s ./... -run  -v -tags "test"
+    - echo done
+
+go_build:
+  stage: build
+  image: docker
+  script: 
+    - docker build -t watl:${CI_COMMIT_SHORT_SHA} .
+    - docker tag ${CI_COMMIT_SHORT_SHA} ${ECR_URL}
+    - docker push ${ECR_URL}
+
+go_deploy:
+  image: ruby:2.5
+  stage: staging
+  script:
+    - echo ${AWS_PRIV_KEY} > watl_priv_key.pem
+    - chmod 400 watl_priv_key.pem
+    - ssh -i watl_priv_key.pem ${INSTANCE_ADDR} 'bash -s' < ./shell/restart.sh
+    - exit
+
+    # - dpl --provider=heroku --app=account-busha-stage-v1-api --api-key=$HEROKU_API_KEY
+  only:
+    - master
+
+go_deploy_production:
+  image: ruby:2.5
+  stage: production
+  script:
+    - gem install dpl
+    # - dpl --provider=heroku --app=account-busha-prod-v1-api --api-key=$HEROKU_API_KEY
+  only:
+    - tags
