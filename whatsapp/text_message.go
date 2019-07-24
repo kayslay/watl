@@ -23,6 +23,7 @@ type Handler struct {
 	initTime    time.Time
 	contactList map[string]store.Contact
 	store       storer
+	Close       chan struct{}
 }
 
 func NewHandler(c *whatzapp.Conn, w io.WriteCloser, s storer) (*Handler, error) {
@@ -35,14 +36,11 @@ func NewHandler(c *whatzapp.Conn, w io.WriteCloser, s storer) (*Handler, error) 
 		state:     "IDLE",
 		initTime:  time.Now(),
 		prevState: "",
+		Close:     make(chan struct{}),
 	}
 	h.contactList, err = loadContact(h)
 
 	return h, err
-}
-
-func (h *Handler) SetClientID(id string) {
-	h.id = id
 }
 
 //HandleError needs to be implemented to be a valid WhatsApp handler
@@ -52,6 +50,9 @@ func (h *Handler) HandleError(err error) {
 		log.Printf("Connection failed, underlying error: %v", e.Err)
 		// try to restart reccursively
 		h.restart()
+	} else if _, ok := err.(*whatzapp.ErrConnectionClosed); ok {
+		log.Printf("connection closed, logging out %s", err)
+		close(h.Close)
 	} else {
 		log.Printf("error occurred: %v\n", err)
 	}
@@ -183,14 +184,13 @@ func (h *Handler) echoMessage(message whatzapp.TextMessage) {
 
 	h.c.Send(msg)
 	msg.Info.QuotedMessageID = ""
-	msg.Text = "_*master kay* is busy now. Heleft left whatsapp for enlightment and deeper understanding of the universe. *calling and telegram are active*_ 🤖"
+	msg.Text = "_*master kay* is busy now. Heleft left whatsapp for enlightenment and deeper understanding of the universe. *calling and telegram are active*_ 🤖"
 	h.c.Send(msg)
 
 }
 
-func (h *Handler) processTextMessage(message whatzapp.TextMessage) {
-	// name := contact.GetName(strings.Split(message.Info.RemoteJid, "@")[0])
-
+func (h *Handler) GetInfo() *whatzapp.Info {
+	return h.c.Info
 }
 
 func (h *Handler) sendTofile(message interface{}) {
