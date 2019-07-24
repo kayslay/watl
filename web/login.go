@@ -45,7 +45,7 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 	qr := make(chan string)
 
 	go func() {
-		session, err := whatsapp.QrLogin(wac, qr)
+		_, err := whatsapp.QrLogin(wac, qr)
 		if err != nil {
 			fmt.Println("could not login at the moment " + err.Error())
 			return
@@ -55,12 +55,19 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 		a.Lock()
 		defer a.Unlock()
 		// set the session
-		a.session[session.ClientId] = h
+		userID := h.GetInfo().Wid
+		a.session[userID] = h
 		// set the handler id
-		h.SetClientID(session.ClientId)
 		// set the session refCode
-		a.code[uniqueCode] = session.ClientId
-		log.Println("session count", len(a.session))
+		a.code[uniqueCode] = userID
+		log.Println(userID)
+		go func() {
+			<-h.Close
+			// h.Logout()
+			delete(a.session, userID)
+			delete(a.code, uniqueCode)
+			fmt.Println("logged out ", a.session)
+		}()
 	}()
 
 	qrcode := <-qr
@@ -109,14 +116,14 @@ func (a *App) getSession(refCode string) (*whatsapp.Handler, string, error) {
 	a.Lock()
 	defer a.Unlock()
 
-	sessID, ok := a.code[refCode]
+	userID, ok := a.code[refCode]
 	if !ok {
 		return nil, "", errors.New("ref code does not exist")
 	}
-	h, ok := a.session[sessID]
+	h, ok := a.session[userID]
 	if !ok {
 		return nil, "", errors.New("session expired")
 
 	}
-	return h, sessID, nil
+	return h, userID, nil
 }
