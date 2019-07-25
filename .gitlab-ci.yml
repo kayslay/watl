@@ -29,7 +29,7 @@ go_deploy:
   script:
     - echo ${AWS_PRIV_KEY} > watl_priv_key.pem
     - chmod 400 watl_priv_key.pem
-    - ssh -i watl_priv_key.pem ${INSTANCE_ADDR} 'bash -s' < ./shell/restart.sh
+    - ssh -i watl_priv_key.pem -o "StrictHostKeyChecking no" ${INSTANCE_ADDR} 'bash -s' < ./shell/restart.sh
 
     # - dpl --provider=heroku --app=account-busha-stage-v1-api --api-key=$HEROKU_API_KEY
   only:
