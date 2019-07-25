@@ -1,6 +1,7 @@
 package whatsapp
 
 import (
+	"errors"
 	"github/kayslay/watl/store"
 	"log"
 	"strings"
@@ -14,21 +15,21 @@ type storer interface {
 	DeleteContact(clientID, name string) error
 }
 
-func (h *Handler) Command(message whatzapp.TextMessage) error {
+func (h *Handler) Command(message whatzapp.TextMessage) (string, error) {
 	switch {
 	case strings.HasPrefix(message.Text, "#!loki"):
-		return addContact(h, message, true)
+		return "you one of the bad guys now", addContact(h, message, true)
 	case strings.HasPrefix(message.Text, "#!thor"):
-		return addContact(h, message, false)
+		return "whitelisted", addContact(h, message, false)
 	case strings.HasPrefix(message.Text, "#!odin"):
 		return toggleState(h)
 	case strings.HasPrefix(message.Text, "#!hella"):
-		return deleteContact(h, message)
+		return "normal citizen now", deleteContact(h, message)
 	}
-	return nil
+	return "", errors.New("unkown command")
 }
 
-func toggleState(h *Handler) error {
+func toggleState(h *Handler) (string, error) {
 	if h.state == "RUNNING" {
 		h.prevState, h.state = h.state, "IDLE"
 	} else if h.state == "IDLE" {
@@ -36,5 +37,9 @@ func toggleState(h *Handler) error {
 	}
 
 	log.Println("ODIN:", h.state, h.prevState)
-	return nil
+	message := "everybody apart from whitlisted contact has been added to do not disturb"
+	if h.state == "IDLE" {
+		message = "everybody apart from blacklisted contact can send messages in peace"
+	}
+	return message, nil
 }

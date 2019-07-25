@@ -11,7 +11,6 @@ import (
 
 	whatzapp "github.com/Rhymen/go-whatsapp"
 	"github.com/dchest/uniuri"
-	"rsc.io/quote"
 )
 
 type Handler struct {
@@ -91,7 +90,7 @@ func (h *Handler) HandleTextMessage(message whatzapp.TextMessage) {
 	if message.Info.FromMe {
 		// check if it is a command
 		if strings.HasPrefix(message.Text, "#!") {
-			err := h.Command(message)
+			s, err := h.Command(message)
 			if err != nil {
 				log.Println("error", err)
 				msg := whatzapp.TextMessage{
@@ -110,7 +109,7 @@ func (h *Handler) HandleTextMessage(message whatzapp.TextMessage) {
 				Info: whatzapp.MessageInfo{
 					RemoteJid: message.Info.RemoteJid,
 				},
-				Text: fmt.Sprintf("_command active *master %s*_ 🤖", h.c.Info.Pushname),
+				Text: fmt.Sprintf("_command active *master %s*_ 🤖.\n _%s_", h.c.Info.Pushname, s),
 			}
 
 			h.c.Send(msg)
@@ -170,7 +169,7 @@ func (h *Handler) echoMessage(message whatzapp.TextMessage) {
 		Info: whatzapp.MessageInfo{
 			RemoteJid: message.Info.RemoteJid,
 		},
-		Text: fmt.Sprintf("_%s_ 🤖", quote.Glass()),
+		Text: fmt.Sprintf("_%s_ 🤖", "master busy at the moment"),
 	}
 
 	go func() {
@@ -184,7 +183,7 @@ func (h *Handler) echoMessage(message whatzapp.TextMessage) {
 
 	h.c.Send(msg)
 	msg.Info.QuotedMessageID = ""
-	msg.Text = fmt.Sprintf("_*master %s* is busy now. Left whatsapp for enlightenment and deeper understanding of the universe. *calling and telegram are active*_ 🤖", h.c.Info.Pushname)
+	msg.Text = fmt.Sprintf("_*master %s* is busy now. try again later_ 🤖", h.c.Info.Pushname)
 	h.c.Send(msg)
 
 }

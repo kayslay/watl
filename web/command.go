@@ -29,7 +29,7 @@ func (a *App) Command(w http.ResponseWriter, r *http.Request) {
 		Text: "#!" + chi.URLParam(r, "command"),
 	}
 
-	err = h.Command(message)
+	s, err = h.Command(message)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{
@@ -41,6 +41,6 @@ func (a *App) Command(w http.ResponseWriter, r *http.Request) {
 
 	render.JSON(w, r, map[string]string{
 		"status":  "success",
-		"message": "command successful",
+		"message": "command successful. " + s,
 	})
 }
