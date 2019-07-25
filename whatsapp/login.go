@@ -6,8 +6,6 @@ import (
 	"os"
 	"path"
 
-	qrcodeTerminal "github.com/Baozisoftware/qrcode-terminal-go"
-
 	whatzapp "github.com/Rhymen/go-whatsapp"
 )
 
@@ -39,9 +37,9 @@ func Login(wac *whatzapp.Conn) error {
 func QrLogin(wac *whatzapp.Conn, ch ...chan string) (whatzapp.Session, error) {
 	qr := make(chan string)
 	go func() {
-		terminal := qrcodeTerminal.New()
+		// terminal := qrcodeTerminal.New()
 		qrcode := <-qr
-		terminal.Get(qrcode).Print()
+		// terminal.Get(qrcode).Print()
 		if len(ch) > 0 {
 			ch[0] <- qrcode
 		}
