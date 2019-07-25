@@ -31,7 +31,7 @@ staging_deploy:
   image: ruby:2.5
   stage: staging
   script:
-    - echo ${AWS_PRIV_KEY} > watl_priv_key.pem
+    - cat ${AWS_PRIV_KEY} > watl_priv_key.pem
     - chmod 0400 watl_priv_key.pem
     - ssh -i watl_priv_key.pem -o "StrictHostKeyChecking no" ${INSTANCE_ADDR} 'bash -s' < ./shell/restart.sh
 
