@@ -5,10 +5,6 @@ stages:
   - staging
   - production
 
-before_script:
-  # - 
-
-
 
 go_test:
   stage: test
@@ -21,7 +17,7 @@ go_build:
   image: docker
   script: 
     - apk add --update make ca-certificates openssl python3 curl
-    - pip3 install aws -y
+    - pip3 install aws
     -  eval $(aws ecr get-login --region us-east-1 --no-include-email) 
     - docker build -t watl:${CI_COMMIT_SHORT_SHA} .
     - docker tag ${CI_COMMIT_SHORT_SHA} ${ECR_URL}

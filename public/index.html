@@ -12,12 +12,15 @@
 
 <body>
     <h3>click image to get new qrcode</h3>
-    <img src="" alt="qrcode" id="qrcode" title="click to get another">
+    <div src="" alt="qrcode" id="qrcode" title="click to get another"></div>
     <p id="refCode"></p>
     <script>
         var qrcode = new QRCode(document.getElementById("qrcode"), {
             width: 500,
-            height: 500
+            height: 500,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
         });
         getQR()
         $("#qrcode").click(getQR)
@@ -29,10 +32,13 @@
                         throw o.message
                         return
                     }
+                    qrcode.clear()
                     qrcode.makeCode(o.qr)
                     $("#refCode").text(o.refCode)
                 })
                 .catch(console.error)
+
+            // document.getElementById("qrcode").setAttribute('src', 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png')
         }
     </script>
 </body>
