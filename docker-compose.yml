@@ -15,8 +15,6 @@ services:
       private:
   mongo:
     image: mongo
-    env_file: 
-      - "db.env"
     networks: 
       private:
 
