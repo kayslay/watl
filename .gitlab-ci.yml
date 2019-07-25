@@ -21,9 +21,10 @@ repo_push:
     - apk add --no-cache curl jq python py-pip
     - pip install awscli
     - $(aws ecr get-login --region us-east-1 --no-include-email) 
-    - docker build -t ${ECR_URL} .
-    - docker tag ${CI_COMMIT_SHORT_SHA} ${ECR_URL}
-    - docker push ${ECR_URL}
+    - docker build -t ${ECR_URL}:${CI_COMMIT_SHORT_SHA} .
+    - docker tag ${ECR_URL}:${CI_COMMIT_SHORT_SHA} ${ECR_URL}:latest
+    - docker push ${ECR_URL}:${CI_COMMIT_SHORT_SHA}
+    - docker push ${ECR_URL}:latest
 
 
 staging_deploy:
@@ -31,7 +32,7 @@ staging_deploy:
   stage: staging
   script:
     - echo ${AWS_PRIV_KEY} > watl_priv_key.pem
-    - chmod 400 watl_priv_key.pem
+    - chmod 0400 watl_priv_key.pem
     - ssh -i watl_priv_key.pem -o "StrictHostKeyChecking no" ${INSTANCE_ADDR} 'bash -s' < ./shell/restart.sh
 
   only:
