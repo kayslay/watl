@@ -20,6 +20,7 @@ go_build:
   stage: build
   image: docker
   script: 
+    - pip install aws -y
     -  eval $(aws ecr get-login --region us-east-1 --no-include-email) 
     - docker build -t watl:${CI_COMMIT_SHORT_SHA} .
     - docker tag ${CI_COMMIT_SHORT_SHA} ${ECR_URL}
