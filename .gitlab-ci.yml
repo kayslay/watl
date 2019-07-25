@@ -20,7 +20,7 @@ go_build:
   stage: build
   image: docker
   script: 
-    - apk add --update make ca-certificates openssl python python3 curl
+    - apk add --update make ca-certificates openssl python python3 python3-pip python-pip curl
     - pip install aws -y
     -  eval $(aws ecr get-login --region us-east-1 --no-include-email) 
     - docker build -t watl:${CI_COMMIT_SHORT_SHA} .
