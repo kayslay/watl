@@ -98,7 +98,7 @@ func (h *Handler) HandleTextMessage(message whatzapp.TextMessage) {
 					Info: whatzapp.MessageInfo{
 						RemoteJid: message.Info.RemoteJid,
 					},
-					Text: "_could not run the ducking command lord master kay!_ 🤖",
+					Text: fmt.Sprintf("_could not run the ducking command lord master %s!_ 🤖", h.c.Info.Wid),
 				}
 				h.c.Send(msg)
 				msg.Text = fmt.Sprintf("_%s_ 🤖", err.Error())
@@ -110,7 +110,7 @@ func (h *Handler) HandleTextMessage(message whatzapp.TextMessage) {
 				Info: whatzapp.MessageInfo{
 					RemoteJid: message.Info.RemoteJid,
 				},
-				Text: "_command active *master kay*_ 🤖",
+				Text: fmt.Sprintf("_command active *master %s*_ 🤖", h.c.Info.Wid),
 			}
 
 			h.c.Send(msg)
@@ -146,7 +146,7 @@ func (h *Handler) HandleTextMessage(message whatzapp.TextMessage) {
 
 func (h *Handler) StatusListener(message whatzapp.TextMessage) {
 
-	if !strings.Contains(message.Text, "@kay") || message.Info.Source.Participant == nil {
+	if !strings.Contains(message.Text, "@watl") || message.Info.Source.Participant == nil {
 		return
 	}
 	h.sendTofile(message)
@@ -184,7 +184,7 @@ func (h *Handler) echoMessage(message whatzapp.TextMessage) {
 
 	h.c.Send(msg)
 	msg.Info.QuotedMessageID = ""
-	msg.Text = "_*master kay* is busy now. Heleft left whatsapp for enlightenment and deeper understanding of the universe. *calling and telegram are active*_ 🤖"
+	msg.Text = fmt.Sprintf("_*master %s* is busy now. Left whatsapp for enlightenment and deeper understanding of the universe. *calling and telegram are active*_ 🤖", h.c.Info.Wid)
 	h.c.Send(msg)
 
 }
