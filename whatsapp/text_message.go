@@ -98,7 +98,7 @@ func (h *Handler) HandleTextMessage(message whatzapp.TextMessage) {
 					Info: whatzapp.MessageInfo{
 						RemoteJid: message.Info.RemoteJid,
 					},
-					Text: fmt.Sprintf("_could not run the ducking command lord master %s!_ 🤖", h.c.Info.Wid),
+					Text: fmt.Sprintf("_could not run the ducking command lord master %s!_ 🤖", h.c.Info.Pushname),
 				}
 				h.c.Send(msg)
 				msg.Text = fmt.Sprintf("_%s_ 🤖", err.Error())
@@ -110,7 +110,7 @@ func (h *Handler) HandleTextMessage(message whatzapp.TextMessage) {
 				Info: whatzapp.MessageInfo{
 					RemoteJid: message.Info.RemoteJid,
 				},
-				Text: fmt.Sprintf("_command active *master %s*_ 🤖", h.c.Info.Wid),
+				Text: fmt.Sprintf("_command active *master %s*_ 🤖", h.c.Info.Pushname),
 			}
 
 			h.c.Send(msg)
@@ -184,7 +184,7 @@ func (h *Handler) echoMessage(message whatzapp.TextMessage) {
 
 	h.c.Send(msg)
 	msg.Info.QuotedMessageID = ""
-	msg.Text = fmt.Sprintf("_*master %s* is busy now. Left whatsapp for enlightenment and deeper understanding of the universe. *calling and telegram are active*_ 🤖", h.c.Info.Wid)
+	msg.Text = fmt.Sprintf("_*master %s* is busy now. Left whatsapp for enlightenment and deeper understanding of the universe. *calling and telegram are active*_ 🤖", h.c.Info.Pushname)
 	h.c.Send(msg)
 
 }
