@@ -12,18 +12,21 @@ go_test:
     # - go test -timeout 30s ./... -run  -v -tags "test"
     - echo done
 
-# go_build:
-#   stage: build
-#   image: docker
-#   script: 
-#     - apk add --no-cache curl jq python py-pip
-#     - pip install awscli
-#     - eval $(aws ecr get-login --region us-east-1 --no-include-email) 
-#     - docker build -t ${ECR_URL} .
-#     - docker tag ${CI_COMMIT_SHORT_SHA} ${ECR_URL}
-#     - docker push ${ECR_URL}
+repo_push:
+  stage: build
+  image: docker
+  services:
+  - docker:dind
+  script: 
+    - apk add --no-cache curl jq python py-pip
+    - pip install awscli
+    - $(aws ecr get-login --region us-east-1 --no-include-email) 
+    - docker build -t ${ECR_URL} .
+    - docker tag ${CI_COMMIT_SHORT_SHA} ${ECR_URL}
+    - docker push ${ECR_URL}
 
-go_deploy:
+
+staging_deploy:
   image: ruby:2.5
   stage: staging
   script:
@@ -31,15 +34,13 @@ go_deploy:
     - chmod 400 watl_priv_key.pem
     - ssh -i watl_priv_key.pem -o "StrictHostKeyChecking no" ${INSTANCE_ADDR} 'bash -s' < ./shell/restart.sh
 
-    # - dpl --provider=heroku --app=account-busha-stage-v1-api --api-key=$HEROKU_API_KEY
   only:
     - master
 
-go_deploy_production:
+production_deploy:
   image: ruby:2.5
   stage: production
   script:
     - gem install dpl
-    # - dpl --provider=heroku --app=account-busha-prod-v1-api --api-key=$HEROKU_API_KEY
   only:
     - tags
