@@ -3,7 +3,6 @@ package web
 import (
 	"errors"
 	"fmt"
-	"github/kayslay/watl/store"
 	"github/kayslay/watl/whatsapp"
 	"log"
 	"net/http"
@@ -19,7 +18,7 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 	// get the qr code
 	uniqueCode := "WHT_" + uniuri.NewLen(8)
 
-	wac, err := whatzapp.NewConn(time.Minute)
+	wac, h, err := a.conn()
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		render.JSON(w, r, map[string]string{
@@ -28,44 +27,33 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
-	str := store.NewMgo()
-
-	h, err := whatsapp.NewHandler(wac, a.Writer, str)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, map[string]string{
-			"status":  "error",
-			"message": err.Error(),
-		})
-		return
-	}
-	//Add handler
-	wac.AddHandler(h)
 	qr := make(chan string)
 
 	go func() {
-		_, err := whatsapp.QrLogin(wac, qr)
+		sess, err := whatsapp.QrLogin(wac, qr)
 		if err != nil {
 			fmt.Println("could not login at the moment " + err.Error())
 			return
 		}
+		userID := h.GetInfo().Wid
 		// TODO save the session somewhere
+		a.saveSession(userID, uniqueCode, sess)
 		// AWS S3
 		a.Lock()
 		defer a.Unlock()
-		// set the session
-		userID := h.GetInfo().Wid
+		// map  handler to userID
 		a.session[userID] = h
-		// set the handler id
-		// set the session refCode
+		// map userID to uniqueCode
 		a.code[uniqueCode] = userID
-		log.Println(userID)
+		// set handler.ID ot uniqueCode
+		h.ID = uniqueCode
+		// load contacts
+		h.LoadContact()
 		go func() {
 			<-h.Close
-			// h.Logout()
 			delete(a.session, userID)
 			delete(a.code, uniqueCode)
+			// delete session
 			fmt.Println("logged out ", a.session)
 		}()
 	}()
@@ -126,4 +114,22 @@ func (a *App) getSession(refCode string) (*whatsapp.Handler, string, error) {
 
 	}
 	return h, userID, nil
+}
+
+func (a App) conn() (*whatzapp.Conn, *whatsapp.Handler, error) {
+	wac, err := whatzapp.NewConn(time.Minute)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	str := a.str
+
+	h, err := whatsapp.NewHandler(wac, a.Writer, str)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	//Add handler
+	wac.AddHandler(h)
+	return wac, h, err
 }

@@ -25,7 +25,8 @@ repo_push:
     - docker tag ${ECR_URL}:${CI_COMMIT_SHORT_SHA} ${ECR_URL}:latest
     - docker push ${ECR_URL}:${CI_COMMIT_SHORT_SHA}
     - docker push ${ECR_URL}:latest
-
+  only:
+    - master
 
 staging_deploy:
   image: ruby:2.5

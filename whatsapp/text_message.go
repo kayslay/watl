@@ -14,7 +14,7 @@ import (
 )
 
 type Handler struct {
-	id          string
+	ID          string
 	c           *whatzapp.Conn
 	w           io.WriteCloser
 	state       string
@@ -28,7 +28,6 @@ type Handler struct {
 func NewHandler(c *whatzapp.Conn, w io.WriteCloser, s storer) (*Handler, error) {
 	var err error
 	h := &Handler{
-		id:        "cli_client",
 		c:         c,
 		w:         w,
 		store:     s,
@@ -37,7 +36,6 @@ func NewHandler(c *whatzapp.Conn, w io.WriteCloser, s storer) (*Handler, error) 
 		prevState: "",
 		Close:     make(chan struct{}),
 	}
-	h.contactList, err = loadContact(h)
 
 	return h, err
 }
