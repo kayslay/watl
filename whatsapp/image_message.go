@@ -23,7 +23,7 @@ func (h *Handler) HandleImageMessage(message whatzapp.ImageMessage) {
 	if err != nil {
 		return
 	}
-	filename := fmt.Sprintf("img/%v.%v" /* os.TempDir(), */, message.Info.Id, strings.Split(message.Type, "/")[1])
+	filename := fmt.Sprintf("data/img/%v.%v" /* os.TempDir(), */, message.Info.Id, strings.Split(message.Type, "/")[1])
 	file, err := os.Create(filename)
 	defer file.Close()
 	if err != nil {
