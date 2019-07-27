@@ -21,8 +21,8 @@ type MgoStore struct {
 	db func(string) (*mgo.Collection, config.Closer)
 }
 
-func NewMgo() MgoStore {
-	return MgoStore{db: config.Mgo}
+func NewMgo() *MgoStore {
+	return &MgoStore{db: config.Mgo}
 }
 
 func (s MgoStore) AddContact(ct Contact) error {

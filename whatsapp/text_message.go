@@ -36,7 +36,6 @@ func NewHandler(c *whatzapp.Conn, w io.WriteCloser, s storer) (*Handler, error) 
 		prevState: "",
 		Close:     make(chan struct{}),
 	}
-	h.contactList, err = loadContact(h)
 
 	return h, err
 }
