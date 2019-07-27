@@ -7,10 +7,10 @@ import (
 	whatzapp "github.com/Rhymen/go-whatsapp"
 )
 
-func loadContact(h *Handler) (map[string]store.Contact, error) {
-	cc, err := h.store.GetContact(h.id)
+func (h *Handler) loadContact() error {
+	cc, err := h.store.GetContact(h.c.Info.Wid)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	cl := map[string]store.Contact{}
 
@@ -18,10 +18,12 @@ func loadContact(h *Handler) (map[string]store.Contact, error) {
 		cl[c.Name] = c
 	}
 
-	return cl, nil
+	h.contactList = cl
+
+	return nil
 }
 
-func addContact(h *Handler, msg whatzapp.TextMessage, blacklist bool) error {
+func (h *Handler) addContact(msg whatzapp.TextMessage, blacklist bool) error {
 
 	// TODO add encryption to saved state
 	contact := store.Contact{
@@ -42,6 +44,6 @@ func addContact(h *Handler, msg whatzapp.TextMessage, blacklist bool) error {
 	return nil
 }
 
-func deleteContact(h *Handler, msg whatzapp.TextMessage) error {
-	return h.store.DeleteContact(h.id, msg.Info.RemoteJid)
+func (h *Handler) deleteContact(msg whatzapp.TextMessage) error {
+	return h.store.DeleteContact(h.c.Info.Wid, msg.Info.RemoteJid)
 }

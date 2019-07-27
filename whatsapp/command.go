@@ -18,13 +18,13 @@ type storer interface {
 func (h *Handler) Command(message whatzapp.TextMessage) (string, error) {
 	switch {
 	case strings.HasPrefix(message.Text, "#!loki"):
-		return "you one of the bad guys now", addContact(h, message, true)
+		return "you one of the bad guys now", h.addContact(message, true)
 	case strings.HasPrefix(message.Text, "#!thor"):
-		return "whitelisted", addContact(h, message, false)
+		return "whitelisted", h.addContact(message, false)
 	case strings.HasPrefix(message.Text, "#!odin"):
 		return toggleState(h)
 	case strings.HasPrefix(message.Text, "#!hella"):
-		return "normal citizen now", deleteContact(h, message)
+		return "normal citizen now", h.deleteContact(message)
 	}
 	return "", errors.New("unkown command")
 }
