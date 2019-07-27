@@ -23,8 +23,9 @@ func loadContact(h *Handler) (map[string]store.Contact, error) {
 
 func addContact(h *Handler, msg whatzapp.TextMessage, blacklist bool) error {
 
+	// TODO add encryption to saved state
 	contact := store.Contact{
-		ClientID:    h.id,
+		ClientID:    h.c.Info.Wid,
 		Phone:       strings.Split(msg.Info.RemoteJid, "@")[0],
 		Blacklisted: blacklist,
 		Name:        msg.Info.RemoteJid,
