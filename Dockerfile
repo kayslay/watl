@@ -8,7 +8,7 @@ FROM alpine:latest as runner
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=0 /usr/watl/app .
-COPY --from=0 /usr/watl/public .
-RUN mkdir -p data/img
+COPY --from=0 /usr/watl/public public
+RUN mkdir -p /data/img
 EXPOSE 8000
 CMD ["./app"]  
