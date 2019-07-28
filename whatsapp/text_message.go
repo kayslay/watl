@@ -107,7 +107,7 @@ func (h *Handler) HandleTextMessage(message whatzapp.TextMessage) {
 				Info: whatzapp.MessageInfo{
 					RemoteJid: message.Info.RemoteJid,
 				},
-				Text: fmt.Sprintf("_command active *master %s*_ 🤖.\n _%s_", h.c.Info.Pushname, s),
+				Text: fmt.Sprintf("_command active *master %s*_ 🤖.\n %s", h.c.Info.Pushname, s),
 			}
 
 			h.c.Send(msg)
