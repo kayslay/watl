@@ -51,6 +51,8 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 		h.LoadContact()
 		go func() {
 			<-h.Close
+			a.Lock()
+			defer a.Unlock()
 			delete(a.session, userID)
 			delete(a.code, uniqueCode)
 			// delete session
