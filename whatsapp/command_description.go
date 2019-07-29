@@ -38,5 +38,22 @@ use cases *#!freyja [COMMAND]* to get help on a command. if no command is passed
 a short desctipion of all the available commands.
 `,
 		},
+		"#!sif": commandDescription{
+			shortDescription: "sets the bot reply message",
+			longDescription: `
+ changes the bots reply message. Enter the message after the *#!sif* command.
+
+Example:
+	*#!sif new reply message*
+output:
+	*new reply message*
+
+To pass in your user name use *{name}* as a placeholder for your username.
+Example
+	*#!sif my name is {name}*.
+If the username is *kayslay*, the output will be :
+	*"my name is kayslay"*
+`,
+		},
 	}
 )

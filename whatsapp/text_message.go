@@ -22,6 +22,7 @@ type Handler struct {
 	initTime    time.Time
 	contactList map[string]store.Contact
 	store       storer
+	message     string
 	Close       chan struct{}
 }
 
@@ -35,9 +36,24 @@ func NewHandler(c *whatzapp.Conn, w io.WriteCloser, s storer) (*Handler, error) 
 		initTime:  time.Now(),
 		prevState: "",
 		Close:     make(chan struct{}),
+		message:   "_*master %[1]s* is busy now. try again later_ 🤖",
 	}
 
 	return h, err
+}
+
+func (h *Handler) Setup() (err error) {
+	defer func() {
+		if er := recover(); er != nil {
+			err = fmt.Errorf("could not load contacts")
+			return
+		}
+	}()
+	if m, err := h.store.GetMessage(h.c.Info.Wid); err == nil {
+		h.message = m.Message
+	}
+	log.Println(h.message)
+	return h.LoadContact()
 }
 
 //HandleError needs to be implemented to be a valid WhatsApp handler
@@ -158,7 +174,7 @@ func (h *Handler) StatusListener(message whatzapp.TextMessage) {
 }
 
 func (h *Handler) echoMessage(message whatzapp.TextMessage) {
-	if !strings.HasPrefix(message.Info.RemoteJid, "234") || !strings.HasSuffix(message.Info.RemoteJid, "s.whatsapp.net") || message.Info.FromMe {
+	if !strings.HasSuffix(message.Info.RemoteJid, "s.whatsapp.net") || message.Info.FromMe {
 		return
 	}
 	// h.sendTofile(message)
@@ -167,7 +183,7 @@ func (h *Handler) echoMessage(message whatzapp.TextMessage) {
 		Info: whatzapp.MessageInfo{
 			RemoteJid: message.Info.RemoteJid,
 		},
-		Text: fmt.Sprintf("_%s_ 🤖", "master busy at the moment"),
+		Text: fmt.Sprintf(h.message, h.c.Info.Pushname),
 	}
 
 	go func() {
@@ -179,9 +195,6 @@ func (h *Handler) echoMessage(message whatzapp.TextMessage) {
 		fmt.Println("read ☑", <-c)
 	}()
 
-	h.c.Send(msg)
-	msg.Info.QuotedMessageID = ""
-	msg.Text = fmt.Sprintf("_*master %s* is busy now. try again later_ 🤖", h.c.Info.Pushname)
 	h.c.Send(msg)
 
 }
