@@ -81,9 +81,9 @@ func (a *App) initSessions() {
 			wac.RestoreWithSession(session)
 			a.code[s.UniqueCode] = s.ClientID
 			a.session[s.ClientID] = h
-			// load contacts
+			// setup handler
+			h.Setup()
 			go func() {
-				h.LoadContact()
 				<-h.Close
 				a.Lock()
 				defer a.Unlock()

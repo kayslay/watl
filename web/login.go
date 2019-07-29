@@ -47,8 +47,8 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 		a.code[uniqueCode] = userID
 		// set handler.ID ot uniqueCode
 		h.ID = uniqueCode
-		// load contacts
-		h.LoadContact()
+		// setup handler
+		h.Setup()
 		go func() {
 			<-h.Close
 			a.Lock()
