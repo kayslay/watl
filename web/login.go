@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/render"
 )
 
+// Login handlers login request
 func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 	// get the qr code
 	uniqueCode := "WHT_" + uniuri.NewLen(8)
@@ -36,7 +37,7 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		userID := h.GetInfo().Wid
-		// TODO save the session somewhere
+		// save the session
 		a.saveSession(userID, uniqueCode, sess)
 		// AWS S3
 		a.Lock()
@@ -80,6 +81,7 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Logout handles user logout from the api
 func (a *App) Logout(w http.ResponseWriter, r *http.Request) {
 	// get the qr code
 	refCode := chi.URLParam(r, "code")
@@ -103,6 +105,7 @@ func (a *App) Logout(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// getSession helper for geting user session
 func (a *App) getSession(refCode string) (*whatsapp.Handler, string, error) {
 	a.Lock()
 	defer a.Unlock()
@@ -119,6 +122,7 @@ func (a *App) getSession(refCode string) (*whatsapp.Handler, string, error) {
 	return h, userID, nil
 }
 
+// conn helper for creating Conn, Handler and an error if one is available
 func (a App) conn() (*whatzapp.Conn, *whatsapp.Handler, error) {
 	wac, err := whatzapp.NewConn(time.Minute)
 	if err != nil {

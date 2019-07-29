@@ -7,7 +7,8 @@ import (
 	whatzapp "github.com/Rhymen/go-whatsapp"
 )
 
-func (h *Handler) LoadContact() error {
+// LoadContact load the contacts on start
+func (h *Handler) loadContact() error {
 
 	cc, err := h.store.GetContact(h.c.Info.Wid)
 	if err != nil {

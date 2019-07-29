@@ -36,6 +36,7 @@ func (h *Handler) Command(message whatzapp.TextMessage) (string, error) {
 	return "", errors.New("unkown command")
 }
 
+// toggleState toggle the state between RUNNING and IDLE
 func toggleState(h *Handler) (string, error) {
 	if h.state == "RUNNING" {
 		h.prevState, h.state = h.state, "IDLE"
@@ -51,6 +52,7 @@ func toggleState(h *Handler) (string, error) {
 	return message, nil
 }
 
+// helpText returns the command help
 func helpText(h *Handler, message whatzapp.TextMessage) (string, error) {
 	token := strings.SplitAfterN(strings.TrimSpace(message.Text), " ", 2)
 	if len(token) == 2 {
@@ -66,6 +68,7 @@ func helpText(h *Handler, message whatzapp.TextMessage) (string, error) {
 	return strings.TrimSpace(str), nil
 }
 
+// editMessage edit the default message the bot returns
 func editMessage(h *Handler, message whatzapp.TextMessage) (string, error) {
 	txt := strings.TrimPrefix(message.Text, "#!sif ")
 	txt = strings.Replace(txt, "{name}", "%[1]s", -1)

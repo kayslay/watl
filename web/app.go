@@ -55,8 +55,10 @@ func (a App) saveSession(clientID, uniqueCode string, session whatzapp.Session) 
 
 }
 
+// initSessions get the session
 func (a *App) initSessions() {
 	log.Println("initializing previous sessions")
+	// get the sessions of users
 	ss, err := a.str.GetSessions()
 	if err != nil {
 		log.Println("error init session", err)
@@ -66,6 +68,7 @@ func (a *App) initSessions() {
 	for _, s := range ss {
 		go func(s store.Session) {
 			session := whatzapp.Session{}
+			// decode session
 			var b = bytes.NewBuffer(s.Session)
 			decoder := gob.NewDecoder(b)
 			err = decoder.Decode(&session)
@@ -73,11 +76,13 @@ func (a *App) initSessions() {
 				log.Println("error decoding session", err)
 				return
 			}
+			// create whatapp.Conn and whatsapp.Handler
 			wac, h, err := a.conn()
 			if err != nil {
 				log.Println("error connecting session", err)
 				return
 			}
+			// restore the session
 			wac.RestoreWithSession(session)
 			a.code[s.UniqueCode] = s.ClientID
 			a.session[s.ClientID] = h

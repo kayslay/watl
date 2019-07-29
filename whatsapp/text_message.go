@@ -26,8 +26,8 @@ type Handler struct {
 	Close       chan struct{}
 }
 
+// NewHandler returns a new Handler that implements whatsapp.Handler
 func NewHandler(c *whatzapp.Conn, w io.WriteCloser, s storer) (*Handler, error) {
-	var err error
 	h := &Handler{
 		c:         c,
 		w:         w,
@@ -39,9 +39,10 @@ func NewHandler(c *whatzapp.Conn, w io.WriteCloser, s storer) (*Handler, error) 
 		message:   "_*master %[1]s* is busy now. try again later_ 🤖",
 	}
 
-	return h, err
+	return h, nil
 }
 
+// Setup loads the necessary configs from the db
 func (h *Handler) Setup() (err error) {
 	defer func() {
 		if er := recover(); er != nil {
@@ -53,7 +54,7 @@ func (h *Handler) Setup() (err error) {
 		h.message = m.Message
 	}
 	log.Println(h.message)
-	return h.LoadContact()
+	return h.loadContact()
 }
 
 //HandleError needs to be implemented to be a valid WhatsApp handler
@@ -94,7 +95,7 @@ func (h *Handler) restart() {
 	}
 }
 
-//Optional to be implemented. Implement HandleXXXMessage for the types you need.
+//HandleTextMessage handles text entering the system
 func (h *Handler) HandleTextMessage(message whatzapp.TextMessage) {
 	if !time.Unix(int64(message.Info.Timestamp), 0).After(h.initTime) {
 		return
