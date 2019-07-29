@@ -25,6 +25,7 @@ func (h *Handler) loadContact() error {
 	return nil
 }
 
+// addContact adds a contact to a whitelist/blacklist
 func (h *Handler) addContact(msg whatzapp.TextMessage, blacklist bool) error {
 
 	// TODO add encryption to saved state
@@ -46,6 +47,8 @@ func (h *Handler) addContact(msg whatzapp.TextMessage, blacklist bool) error {
 	return nil
 }
 
+// deleteContact deletes a contact from a blacklist/whitelist
 func (h *Handler) deleteContact(msg whatzapp.TextMessage) (err error) {
+	delete(h.contactList, msg.Info.RemoteJid)
 	return h.store.DeleteContact(h.c.Info.Wid, msg.Info.RemoteJid)
 }
