@@ -19,6 +19,8 @@ func init() {
 	godotenv.Load("cmd/http/.env")
 }
 
+// nilWriteCloser just implements the io.WriteCloser
+// to be used in production so has not write user data
 type nilWriteCloser struct {
 }
 
@@ -43,7 +45,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("error creating file: %v\n", err)
 	}
-
+	// set up app configuration
 	config.New(config.NewMongoConnect)
 
 	var r = chi.NewRouter()
@@ -60,7 +62,6 @@ func main() {
 	if envPort != "" {
 		port = envPort
 	}
-	log.Println("cooler loling")
 
 	fmt.Println("server started on port ", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))

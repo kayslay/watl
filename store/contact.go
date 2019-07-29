@@ -21,10 +21,12 @@ type MgoStore struct {
 	db func(string) (*mgo.Collection, config.Closer)
 }
 
+// NewMgo returns a new MgoStore
 func NewMgo() *MgoStore {
 	return &MgoStore{db: config.Mgo}
 }
 
+// AddContact adds a contact to whitelist/blacklist
 func (s MgoStore) AddContact(ct Contact) error {
 	// delete contact then add new list
 	c, closer := s.db("contacts")
@@ -36,6 +38,7 @@ func (s MgoStore) AddContact(ct Contact) error {
 	return err
 }
 
+// GetContact get the contacts by a client
 func (s MgoStore) GetContact(clientID string) ([]Contact, error) {
 	var cc = []Contact{}
 	c, closer := s.db("contacts")
@@ -46,6 +49,7 @@ func (s MgoStore) GetContact(clientID string) ([]Contact, error) {
 	return cc, err
 }
 
+// DeleteContact deletes a contact
 func (s MgoStore) DeleteContact(clientID, name string) error {
 	c, closer := s.db("contacts")
 	defer closer.Close()

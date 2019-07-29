@@ -14,6 +14,8 @@ type storer interface {
 	AddContact(store.Contact) error
 	GetContact(clientID string) ([]store.Contact, error)
 	DeleteContact(clientID, name string) error
+	EditMessage(store.Message) error
+	GetMessage(clientID string) (store.Message, error)
 }
 
 func (h *Handler) Command(message whatzapp.TextMessage) (string, error) {
@@ -26,12 +28,15 @@ func (h *Handler) Command(message whatzapp.TextMessage) (string, error) {
 		return toggleState(h)
 	case strings.HasPrefix(message.Text, "#!freyja"):
 		return helpText(h, message)
+	case strings.HasPrefix(message.Text, "#!sif"):
+		return editMessage(h, message)
 	case strings.HasPrefix(message.Text, "#!hella"):
 		return "normal citizen now", h.deleteContact(message)
 	}
 	return "", errors.New("unkown command")
 }
 
+// toggleState toggle the state between RUNNING and IDLE
 func toggleState(h *Handler) (string, error) {
 	if h.state == "RUNNING" {
 		h.prevState, h.state = h.state, "IDLE"
@@ -47,11 +52,12 @@ func toggleState(h *Handler) (string, error) {
 	return message, nil
 }
 
+// helpText returns the command help
 func helpText(h *Handler, message whatzapp.TextMessage) (string, error) {
 	token := strings.SplitAfterN(strings.TrimSpace(message.Text), " ", 2)
 	if len(token) == 2 {
 		if v, ok := descriptions[token[1]]; ok {
-			return fmt.Sprintf("_*%s* %s_", token[1], v.shortDescription), nil
+			return fmt.Sprintf("*%s* %s", token[1], v.longDescription), nil
 		}
 	}
 	str := "\n*COMMAND LIST* \n\n"
@@ -60,4 +66,20 @@ func helpText(h *Handler, message whatzapp.TextMessage) (string, error) {
 	}
 	str += "To get more info on a command enter *#!freyja [COMMAND]*.\n\nExample *'#!freyja #!freyja'*"
 	return strings.TrimSpace(str), nil
+}
+
+// editMessage edit the default message the bot returns
+func editMessage(h *Handler, message whatzapp.TextMessage) (string, error) {
+	txt := strings.TrimPrefix(message.Text, "#!sif ")
+	txt = strings.Replace(txt, "{name}", "%[1]s", -1)
+	msg := store.Message{
+		ClientID: h.c.Info.Wid,
+		Message:  txt,
+	}
+	err := h.store.EditMessage(msg)
+	if err != nil {
+		return "", err
+	}
+	h.message = txt
+	return "edited bot's reply message", nil
 }

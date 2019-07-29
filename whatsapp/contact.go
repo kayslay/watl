@@ -1,20 +1,15 @@
 package whatsapp
 
 import (
-	"fmt"
 	"github/kayslay/watl/store"
 	"strings"
 
 	whatzapp "github.com/Rhymen/go-whatsapp"
 )
 
-func (h *Handler) LoadContact() (err error) {
-	defer func() {
-		if er := recover(); er != nil {
-			err = fmt.Errorf("could not load contacts")
-			return
-		}
-	}()
+// LoadContact load the contacts on start
+func (h *Handler) loadContact() error {
+
 	cc, err := h.store.GetContact(h.c.Info.Wid)
 	if err != nil {
 		return err
@@ -52,11 +47,5 @@ func (h *Handler) addContact(msg whatzapp.TextMessage, blacklist bool) error {
 }
 
 func (h *Handler) deleteContact(msg whatzapp.TextMessage) (err error) {
-	defer func() {
-		if er := recover(); er != nil {
-			err = fmt.Errorf("could not load contacts")
-			return
-		}
-	}()
 	return h.store.DeleteContact(h.c.Info.Wid, msg.Info.RemoteJid)
 }
