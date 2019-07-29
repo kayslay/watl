@@ -2,6 +2,7 @@ package whatsapp
 
 import (
 	"errors"
+	"fmt"
 	"github/kayslay/watl/store"
 	"log"
 	"strings"
@@ -23,6 +24,8 @@ func (h *Handler) Command(message whatzapp.TextMessage) (string, error) {
 		return "whitelisted", h.addContact(message, false)
 	case strings.HasPrefix(message.Text, "#!odin"):
 		return toggleState(h)
+	case strings.HasPrefix(message.Text, "#!freyja"):
+		return helpText(h, message)
 	case strings.HasPrefix(message.Text, "#!hella"):
 		return "normal citizen now", h.deleteContact(message)
 	}
@@ -42,4 +45,19 @@ func toggleState(h *Handler) (string, error) {
 		message = "everybody apart from blacklisted contact can send messages in peace"
 	}
 	return message, nil
+}
+
+func helpText(h *Handler, message whatzapp.TextMessage) (string, error) {
+	token := strings.SplitAfterN(strings.TrimSpace(message.Text), " ", 2)
+	if len(token) == 2 {
+		if v, ok := descriptions[token[1]]; ok {
+			return fmt.Sprintf("_*%s* %s_", token[1], v.shortDescription), nil
+		}
+	}
+	str := "\n*COMMAND LIST* \n\n"
+	for k, v := range descriptions {
+		str += fmt.Sprintf("_*%s* %s_ \n\n", k, v.shortDescription)
+	}
+	str += "To get more info on a command enter *#!freyja [COMMAND]*.\n\nExample *'#!freyja #!freyja'*"
+	return strings.TrimSpace(str), nil
 }
