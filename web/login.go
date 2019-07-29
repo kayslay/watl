@@ -56,6 +56,7 @@ func (a *App) Login(w http.ResponseWriter, r *http.Request) {
 			delete(a.session, userID)
 			delete(a.code, uniqueCode)
 			// delete session
+			a.str.DeleteSession(userID)
 			fmt.Println("logged out ", a.session)
 		}()
 	}()

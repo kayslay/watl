@@ -90,6 +90,7 @@ func (a *App) initSessions() {
 				delete(a.session, s.ClientID)
 				delete(a.code, s.UniqueCode)
 				// delete session
+				a.str.DeleteSession(s.ClientID)
 				fmt.Println("logged out ", a.session)
 			}()
 		}(s)
