@@ -71,7 +71,6 @@ func helpText(h *Handler, message whatzapp.TextMessage) (string, error) {
 // editMessage edit the default message the bot returns
 func editMessage(h *Handler, message whatzapp.TextMessage) (string, error) {
 	txt := strings.TrimPrefix(message.Text, "#!sif ")
-	txt = strings.Replace(txt, "{name}", "%[1]s", -1)
 	msg := store.Message{
 		ClientID: h.c.Info.Wid,
 		Message:  txt,
@@ -82,4 +81,16 @@ func editMessage(h *Handler, message whatzapp.TextMessage) (string, error) {
 	}
 	h.message = txt
 	return "edited bot's reply message", nil
+}
+
+func parseMessage(msg string, str ...string) string {
+	vars := []string{"{name}"}
+	if len(vars) < len(str) {
+		return ""
+	}
+
+	for i, v := range str {
+		msg = strings.Replace(msg, vars[i], v, -1)
+	}
+	return msg
 }
