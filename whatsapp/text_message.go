@@ -36,7 +36,7 @@ func NewHandler(c *whatzapp.Conn, w io.WriteCloser, s storer) (*Handler, error) 
 		initTime:  time.Now(),
 		prevState: "",
 		Close:     make(chan struct{}),
-		message:   "_*master %[1]s* is busy now. try again later_ 🤖",
+		message:   "_*master {name}* is busy now. try again later_ 🤖",
 	}
 
 	return h, nil
@@ -184,7 +184,7 @@ func (h *Handler) echoMessage(message whatzapp.TextMessage) {
 		Info: whatzapp.MessageInfo{
 			RemoteJid: message.Info.RemoteJid,
 		},
-		Text: fmt.Sprintf(h.message, h.c.Info.Pushname),
+		Text: parseMessage(h.message, h.c.Info.Pushname),
 	}
 
 	go func() {
