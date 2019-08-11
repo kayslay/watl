@@ -93,6 +93,10 @@ func (h *Handler) restart() {
 			return
 		}
 	}
+
+	// kill the handler
+	log.Printf("after retrying %d times, the handler is closing", count)
+	close(h.Close)
 }
 
 //HandleTextMessage handles text entering the system
