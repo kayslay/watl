@@ -18,6 +18,9 @@ type storer interface {
 	GetMessage(clientID string) (store.Message, error)
 }
 
+// Command handles commands passed to the system
+// the command must start the message. they must prefix the message if they
+// are to be executed
 func (h *Handler) Command(message whatzapp.TextMessage) (string, error) {
 	switch {
 	case strings.HasPrefix(message.Text, "#!loki"):

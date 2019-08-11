@@ -33,7 +33,7 @@ The command are passed through the chat input or status input.
 **#!freyja**: act as the help command. Shows info about the commands.
 
 For list of other commands type `#!freyja`. I will list the remaining commands when I'm ready to.
-Since `#!freyja` shows al the commands it will be redudant adding them here 😏.
+Since `#!freyja` shows all the commands it will be redudant adding them here 😏.
 
 ## Motivation
 

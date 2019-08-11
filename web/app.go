@@ -89,6 +89,7 @@ func (a *App) initSessions() {
 			// setup handler
 			h.Setup()
 			go func() {
+				// wait on the close chan in the case of a logout or failure
 				<-h.Close
 				a.Lock()
 				defer a.Unlock()
